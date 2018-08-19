@@ -1,0 +1,41 @@
+{
+  "name": "find-git-directories",
+  "version": "0.1.0",
+  "description": "Attempt to find standard git repositories given a directory to search.",
+  "main": "index.js",
+  "scripts": {
+    "test": "xo && ava",
+    "debug": "DEBUG='git-organized:*' nodemon src/cli.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rot26/find-git-directories.git"
+  },
+  "keywords": [
+    "git",
+    "find",
+    "recursive",
+    "search"
+  ],
+  "author": {
+    "name": "Chris Coleman",
+    "email": "chris@rot-26.com",
+    "url": "rot-26.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rot26/find-git-directories/issues"
+  },
+  "homepage": "https://github.com/rot26/find-git-directories#readme",
+  "dependencies": {
+    "commander": "2.17.1",
+    "find-git-repos": "0.0.0",
+    "git-url-parse": "10.0.1",
+    "meow": "5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "1.18.3",
+    "yarn": "1.9.4"
+  }
+}
