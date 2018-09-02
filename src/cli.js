@@ -7,9 +7,10 @@ const path = require('path')
 
 const program = require('commander');
 const gitUrlParse = require("git-url-parse");
+const cmd = require('node-cmd');
 
 function getBaseSrcDirectory() {
-    const baseSrcDirectory = process.env['GIT_ORGANIZED_SRC'] || path.join(process.env['GOPATH'],'src') || path.join(require('os').homedir(), 'src')
+    const baseSrcDirectory = process.env['GIT_ORGANIZED_SRC'] || path.join(process.env['GOPATH'], 'src') || path.join(require('os').homedir(), 'src')
     debug('baseSrcDirectory: %O', baseSrcDirectory)
     return baseSrcDirectory
 }
@@ -28,7 +29,24 @@ function buildDirectoryPath(repo) {
 
 }
 
-function cloneRepo(repoUrl,targetPath){
+function cloneRepo(repoUrl, targetPath) {
+    cmd.get(
+        `
+        git clone ${repoUrl} ${targetPath}
+    `,
+        function (err, data, stderr) {
+            debug('err: %O', err)
+            debug('data: %o', data)
+            debug('stderr: %O', stderr)
+
+            if (!err) {
+                console.log('the node-cmd cloned dir contains these files :\n\n', data)
+            } else {
+                console.log('error', err)
+            }
+
+        }
+    );
 
 }
 
@@ -40,9 +58,9 @@ program
         (repo) => {
             const directoryPath = buildDirectoryPath(repo)
 
-            
+            cloneRepo(repo, directoryPath)
 
-            debug('directoryPath: %O',directoryPath)
+            debug('directoryPath: %O', directoryPath)
 
         }
     )
@@ -60,7 +78,7 @@ program
         (repo) => {
             const directoryPath = buildDirectoryPath(repo)
 
-            debug('directoryPath: %O',directoryPath)
+            debug('directoryPath: %O', directoryPath)
 
         }
     )

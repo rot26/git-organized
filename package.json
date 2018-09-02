@@ -1,7 +1,7 @@
 {
-  "name": "find-git-directories",
+  "name": "git-organized",
   "version": "0.1.0",
-  "description": "Attempt to find standard git repositories given a directory to search.",
+  "description": "CLI tool for cloning and organizing your git repositories in a go-like structure.",
   "main": "index.js",
   "scripts": {
     "test": "xo && ava",
@@ -13,8 +13,11 @@
     "url": "git+https://github.com/rot26/find-git-directories.git"
   },
   "keywords": [
-    "git",
+    "clone",
     "find",
+    "git",
+    "go-like",
+    "organize",
     "recursive",
     "search"
   ],
@@ -31,11 +34,9 @@
   "dependencies": {
     "commander": "2.17.1",
     "find-git-repos": "0.0.0",
-    "git-url-parse": "10.0.1",
-    "meow": "5.0.0"
+    "git-url-parse": "10.0.1"
   },
   "devDependencies": {
-    "nodemon": "1.18.3",
-    "yarn": "1.9.4"
+    "nodemon": "1.18.3"
   }
 }
