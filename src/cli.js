@@ -46,7 +46,7 @@ function cloneRepo(repoUrl, targetPath) {
             }
 
         }
-    );
+    )
 
 }
 

@@ -4,9 +4,10 @@
   "description": "CLI tool for cloning and organizing your git repositories in a go-like structure.",
   "main": "index.js",
   "scripts": {
+    "babel-node": "babel-node",
     "test": "xo && ava",
-    "debug": "DEBUG='git-organized:*' nodemon src/cli.js",
-    "start": "node index.js"
+    "debug": "DEBUG='git-organized:*' nodemon --exec npm run babel-node -- src/cli.js",
+    "start": "babel-node src/index.js"
   },
   "repository": {
     "type": "git",
@@ -34,9 +35,14 @@
   "dependencies": {
     "commander": "2.17.1",
     "find-git-repos": "0.0.0",
-    "git-url-parse": "10.0.1"
+    "git-url-parse": "10.0.1",
+    "node-cmd": "3.0.0"
   },
   "devDependencies": {
+    "babel-cli": "6.26.0",
+    "babel-core": "6.26.3",
+    "babel-preset-env": "1.7.0",
+    "babel-preset-stage-2": "6.24.1",
     "nodemon": "1.18.3"
   }
 }
