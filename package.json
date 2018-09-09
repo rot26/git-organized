@@ -8,7 +8,7 @@
     "debug": "DEBUG=${DEBUG:-'git-organized:*'} npm run watch",
     "develop": "npm-run-all --serial lint:fix debug",
     "start": "babel-node src/index.js",
-    "eslint":"eslint",
+    "eslint": "eslint",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint --fix src/**/*.js",
     "test": "jest",

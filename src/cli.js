@@ -23,7 +23,7 @@ function buildDirectoryPath(repo) {
     const repoPath = path.join(
         String(getBaseSrcDirectory()),
         String(parsedRepo.resource),
-        String(parsedRepo.full_name),
+        String(parsedRepo.full_name)
     )
 
     return repoPath
