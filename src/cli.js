@@ -1,15 +1,16 @@
 #!/usr/bin/env node
-'use strict';
+'use strict'
 
 const debug = require('debug')('git-organized:cli')
 
 const path = require('path')
 
-const program = require('commander');
-const gitUrlParse = require("git-url-parse");
-const cmd = require('node-cmd');
+const program = require('commander')
+const gitUrlParse = require('git-url-parse')
+const cmd = require('node-cmd')
 
 function getBaseSrcDirectory() {
+    /* eslint-disable-next-line no-undef */
     const baseSrcDirectory = process.env['GIT_ORGANIZED_SRC'] || path.join(process.env['GOPATH'], 'src') || path.join(require('os').homedir(), 'src')
     debug('baseSrcDirectory: %O', baseSrcDirectory)
     return baseSrcDirectory
@@ -40,8 +41,10 @@ function cloneRepo(repoUrl, targetPath) {
             debug('stderr: %O', stderr)
 
             if (!err) {
+                /* eslint-disable-next-line no-console */
                 console.log('the node-cmd cloned dir contains these files :\n\n', data)
             } else {
+                /* eslint-disable-next-line no-console */
                 console.log('error', err)
             }
 
@@ -89,9 +92,11 @@ program
 program
     .version('0.1.0')
     .description('organize git repositories into go-like organized structure')
-    .parse(process.argv);
+    /* eslint-disable-next-line no-undef */
+    .parse(process.argv)
 
 
+/* eslint-disable-next-line no-undef */
 if (!process.argv.slice(2).length) {
-    program.outputHelp();
+    program.outputHelp()
 }
