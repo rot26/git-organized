@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 'use strict'
 
 const debug = require('debug')('git-organized:cli')
@@ -8,6 +9,7 @@ const path = require('path')
 const program = require('commander')
 const gitUrlParse = require('git-url-parse')
 const cmd = require('node-cmd')
+const simpleGit = require('simple-git/promise')()
 
 function getBaseSrcDirectory() {
     /* eslint-disable-next-line no-undef */
@@ -30,26 +32,50 @@ function buildDirectoryPath(repo) {
 
 }
 
+function directoryExists(directoryPath){
+    
+}
+// function checkDirectoryEmpty(directoryPath){
+// }
+
 function cloneRepo(repoUrl, targetPath) {
-    cmd.get(
-        `
-        git clone ${repoUrl} ${targetPath}
-    `,
-        function (err, data, stderr) {
-            debug('err: %O', err)
-            debug('data: %o', data)
-            debug('stderr: %O', stderr)
-
-            if (!err) {
-                /* eslint-disable-next-line no-console */
-                console.log('the node-cmd cloned dir contains these files :\n\n', data)
-            } else {
-                /* eslint-disable-next-line no-console */
-                console.log('error', err)
+    simpleGit
+        .clone(
+            repoUrl,
+            targetPath
+        )
+        .then(
+            (err, result) => debug('cloned: %O %O', err, result)
+        )
+        .catch(
+            (err) => {
+                debug('err: %O',err)
+                // if (err.indexOf('already exists and is not an empty directory') == -1) {
+                //     return debug('cloud not clone')
+                // }
+                // return debug('failed: %o', err)
             }
+        )
 
-        }
-    )
+    // cmd.get(
+    //     `
+    //     git clone ${repoUrl} ${targetPath}
+    // `,
+    //     function (err, data, stderr) {
+    //         debug('err: %O', err)
+    //         debug('data: %o', data)
+    //         debug('stderr: %O', stderr)
+
+    //         if (!err) {
+    //             /* eslint-disable-next-line no-console */
+    //             console.log('the node-cmd cloned dir contains these files :\n\n', data)
+    //         } else {
+    //             /* eslint-disable-next-line no-console */
+    //             console.log('error', err)
+    //         }
+
+    //     }
+    // )
 
 }
 
@@ -85,9 +111,6 @@ program
 
         }
     )
-
-// program
-//     .outputHelp()
 
 program
     .version('0.1.0')
