@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {
-    getBaseSrcDirectory,
+    getFirstSrcDirectory,
     buildDirectoryPath,
 } from './repo'
 
@@ -71,32 +71,39 @@ describe('buildDirectoryPath', () => {
 
 })
 
-describe('getBaseSrcDirectory()', () => {
+describe('getFirstSrcDirectory)', () => {
 
-    test.skip('command line argument', () => {
-        const gitOrganizedSrc = process.env['GIT_ORGANIZED_SRC']
+    // const defaultPaths = [
+    //     '/path/1',
+    //     '/path/2',
+    //     '/path/3',
+    // ]
 
-        return expect(getBaseSrcDirectory()).toBe(gitOrganizedSrc)
+    test('should choose first defined path in array', () => {
+        const defaultPaths = [
+            null,
+            '/path/2',
+            '/path/3',
+        ]
+
+        expect(getFirstSrcDirectory(defaultPaths)).toBe('/path/2')
+        expect(getFirstSrcDirectory(defaultPaths)).not.toBe(null)
+        expect(getFirstSrcDirectory(defaultPaths)).not.toBe('/path/3')
+        return
     })
 
-    test.skip('environment variable', () => {
-        const gitOrganizedSrc = process.env['GIT_ORGANIZED_SRC']
+    test('should choose first function value in array', () => {
+        const defaultPaths = [
+            null,
+            () => '/path/2',
+            '/path/3',
+        ]
 
-        return expect(getBaseSrcDirectory()).toBe(gitOrganizedSrc)
+        expect(getFirstSrcDirectory(defaultPaths)).toBe('/path/2')
+        expect(getFirstSrcDirectory(defaultPaths)).not.toBe(null)
+        expect(getFirstSrcDirectory(defaultPaths)).not.toBe('/path/3')
+        return
     })
 
-    test.skip('fallback to go path', () => {
-        const goPath = path.join(process.env['GOPATH'], 'src')
-
-        return expect(getBaseSrcDirectory()).toBe(goPath)
-    })
-
-    test('final fallback to `$home/src`', () => {
-        const osHome = os.homedir()
-        const defaultPath = path.join(osHome, 'src')
-
-        return expect(getBaseSrcDirectory()).toBe(defaultPath)
-
-    })
 
 })

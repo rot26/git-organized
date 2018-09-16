@@ -1,6 +1,6 @@
 {
   "name": "git-organized",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "CLI tool for cloning and organizing your git repositories in a go-like structure.",
   "main": "src/index.js",
   "scripts": {

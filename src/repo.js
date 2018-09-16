@@ -4,11 +4,14 @@ const path = require('path')
 const debug = require('debug')('git-organized:repo')
 const gitUrlParse = require('git-url-parse')
 
-export function getBaseSrcDirectory() {
-    /* eslint-disable-next-line no-undef */
-    const baseSrcDirectory = process.env['GIT_ORGANIZED_SRC'] || path.join(process.env['GOPATH'], 'src') || path.join(require('os').homedir(), 'src')
-    debug('baseSrcDirectory: %O', baseSrcDirectory)
-    return baseSrcDirectory
+export function getFirstSrcDirectory(paths) {
+    debug('getFirstSrcDirectory: paths: %O', path)
+    return paths.reduce(
+        (accumulator, currentValue) => {
+            debug('accumulator %O', accumulator)
+            return (typeof accumulator === 'function') ? accumulator() : accumulator || currentValue
+        }
+    )
 }
 
 export function buildDirectoryPath(repo, srcPath) {
