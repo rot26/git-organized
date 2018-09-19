@@ -71,13 +71,7 @@ describe('buildDirectoryPath', () => {
 
 })
 
-describe('getFirstSrcDirectory)', () => {
-
-    // const defaultPaths = [
-    //     '/path/1',
-    //     '/path/2',
-    //     '/path/3',
-    // ]
+describe('getFirstSrcDirectory()', () => {
 
     test('should choose first defined path in array', () => {
         const defaultPaths = [
@@ -94,12 +88,12 @@ describe('getFirstSrcDirectory)', () => {
 
     test('should choose first function value in array', () => {
         const defaultPaths = [
+            () => '/path/1',
             null,
-            () => '/path/2',
             '/path/3',
         ]
 
-        expect(getFirstSrcDirectory(defaultPaths)).toBe('/path/2')
+        expect(getFirstSrcDirectory(defaultPaths)).toBe('/path/1')
         expect(getFirstSrcDirectory(defaultPaths)).not.toBe(null)
         expect(getFirstSrcDirectory(defaultPaths)).not.toBe('/path/3')
         return
