@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
 import {
-    getFirstSrcDirectory,
     buildDirectoryPath,
+    getFirstSrcDirectory,
+    getSrcFromEnvVar,
+    getSrcFromGoPathEnvVar,
+    getSrcFromStaticDefault,
 } from './repo'
 
 const path = require('path')
@@ -99,5 +102,63 @@ describe('getFirstSrcDirectory()', () => {
         return
     })
 
+
+})
+
+describe('getSrcFromEnvVar()', () => {
+
+    test('should return path when GIT_ORGANIZED_SRC_DIR is set', () => {
+        const processMock = {
+            env: () => '/path/set/by/env'
+        }
+        return expect(getSrcFromEnvVar(processMock)).toBe('/path/set/by/env')
+    })
+
+    test('should return null if GIT_ORGANIZED_SRC_DIR is not set', () => {
+        const processMock = {
+            env: () => null
+        }
+        return expect(getSrcFromEnvVar(processMock)).toBeNull()
+    })
+
+})
+
+describe('getSrcFromGoPathEnvVar)', () => {
+
+    test('should return path+source when GOPATH is set', () => {
+        const pathMock = {
+            join: () => '/path/to/go/src'
+        }
+        const processMock = {
+            env: () => '/path/to/go'
+        }
+        return expect(getSrcFromGoPathEnvVar(pathMock, processMock)).toBe('/path/to/go/src')
+    })
+
+    test('should return null if GOPATH is not set', () => {
+        const pathMock = {
+            join: () => null
+        }
+        const processMock = {
+            env: () => null
+        }
+        return expect(getSrcFromGoPathEnvVar(pathMock, processMock)).toBeNull()
+    })
+
+})
+
+describe('getSrcFromStaticDefault', () => {
+
+    test('should return path+source when GOPATH is set', () => {
+        const pathMock = {
+            join: () => '/path/to/home/src'
+        }
+        const osMock = {
+            homedir: () => '/path/to/home'
+        }
+        expect(getSrcFromStaticDefault(pathMock, osMock)).not.toBeNull()
+        expect(getSrcFromStaticDefault(pathMock, osMock)).toBe('/path/to/home/src')
+        return
+    })
 
 })

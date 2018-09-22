@@ -7,7 +7,7 @@ const gitUrlParse = require('git-url-parse')
 //     return process.env('GIT_ORGANIZED_SRC_DIR')
 // }
 export function getSrcFromEnvVar(process) {
-    return process.env('GIT_ORGANIZED_SRC_DIR')
+    return process.env('GIT_ORGANIZED_SRC_DIR') || null
 }
 export function getSrcFromGoPathEnvVar(path, process) {
     return path.join(process.env('GOPATH'), 'src')
