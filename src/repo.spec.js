@@ -11,7 +11,7 @@ import {
 const path = require('path')
 const os = require('os')
 
-describe('buildDirectoryPath', () => {
+describe('buildDirectoryPath()', () => {
 
     describe('with repository git@github.com:rot26/git-organized.git', () => {
         const repository = 'git@github.com:rot26/git-organized.git'
@@ -123,7 +123,7 @@ describe('getSrcFromEnvVar()', () => {
 
 })
 
-describe('getSrcFromGoPathEnvVar)', () => {
+describe('getSrcFromGoPathEnvVar()', () => {
 
     test('should return path+source when GOPATH is set', () => {
         const pathMock = {
@@ -147,7 +147,7 @@ describe('getSrcFromGoPathEnvVar)', () => {
 
 })
 
-describe('getSrcFromStaticDefault', () => {
+describe('getSrcFromStaticDefault()', () => {
 
     test('should return path+source when GOPATH is set', () => {
         const pathMock = {
