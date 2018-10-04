@@ -8,6 +8,10 @@ import {
     getSrcFromStaticDefault,
 } from './repo'
 
+const path = require.requireMock('path')
+const os = require.requireMock('os')
+const processMock = jest.mock('process')
+
 describe('buildDirectoryPath()', () => {
 
     describe('with repository git@github.com:rot26/git-organized.git', () => {
@@ -46,19 +50,15 @@ describe('buildDirectoryPath()', () => {
         })
 
         test('with "src" prefix', () => {
-            const expectedRepositoryPath = 'src/github.com/rot26/git-organized'
             const result = buildDirectoryPath(repository, 'src')
 
-            expect(result).toBe(expectedRepositoryPath)
-
+            expect(result).toBe('src/github.com/rot26/git-organized')
         })
 
         test('with number prefix', () => {
-            const expectedRepositoryPath = '1/github.com/rot26/git-organized'
             const result = buildDirectoryPath(repository, 1)
 
-            expect(result).toBe(expectedRepositoryPath)
-
+            expect(result).toBe('1/github.com/rot26/git-organized')
         })
 
     })
@@ -96,27 +96,23 @@ describe('getFirstSrcDirectory()', () => {
 describe('getSrcFromEnvVar()', () => {
 
     test('should return path when GIT_ORGANIZED_SRC_DIR is set', () => {
-        const process = {
-            env: jest.fn().mockReturnValue('/path/set/by/env')
-        }
+        processMock.env = jest.fn().mockReturnValue('/path/set/by/env')
 
-        const result = getSrcFromEnvVar(process)
+        const result = getSrcFromEnvVar(processMock)
 
         expect(result).toBe('/path/set/by/env')
 
-        expect(process.env).toBeCalledWith('GIT_ORGANIZED_SRC_DIR')
+        expect(processMock.env).toBeCalledWith('GIT_ORGANIZED_SRC_DIR')
     })
 
     test('should return null if GIT_ORGANIZED_SRC_DIR is not set', () => {
-        const process = {
-            env: jest.fn().mockReturnValue(null)
-        }
+        processMock.env = jest.fn().mockReturnValue(null)
 
-        const result = getSrcFromEnvVar(process)
+        const result = getSrcFromEnvVar(processMock)
 
         expect(result).toBeNull()
 
-        expect(process.env).toBeCalledWith('GIT_ORGANIZED_SRC_DIR')
+        expect(processMock.env).toBeCalledWith('GIT_ORGANIZED_SRC_DIR')
     })
 
 })
@@ -124,35 +120,27 @@ describe('getSrcFromEnvVar()', () => {
 describe('getSrcFromGoPathEnvVar()', () => {
 
     test('should return path+source when GOPATH is set', () => {
-        const path = {
-            join: jest.fn().mockReturnValue('/path/to/go/src')
-        }
-        const process = {
-            env: jest.fn().mockReturnValue('/path/to/go')
-        }
+        path.join = jest.fn().mockReturnValue('/path/to/go/src')
+        processMock.env = jest.fn().mockReturnValue('/path/to/go')
 
-        const result = getSrcFromGoPathEnvVar(path, process)
+        const result = getSrcFromGoPathEnvVar(path, processMock)
 
         expect(result).toBe('/path/to/go/src')
 
-        expect(path.join).toBeCalledWith(process.env('GOPATH'), 'src')
-        expect(process.env).toBeCalledWith('GOPATH')
+        expect(path.join).toBeCalledWith(processMock.env('GOPATH'), 'src')
+        expect(processMock.env).toBeCalledWith('GOPATH')
     })
 
     test('should return null if GOPATH is not set', () => {
-        const path = {
-            join: jest.fn().mockReturnValue(null)
-        }
-        const process = {
-            env: jest.fn().mockReturnValue(null)
-        }
+        path.join = jest.fn().mockReturnValue(null)
+        processMock.env = jest.fn().mockReturnValue(null)
 
-        const result = getSrcFromGoPathEnvVar(path, process)
+        const result = getSrcFromGoPathEnvVar(path, processMock)
 
         expect(result).toBeNull()
 
-        expect(path.join).toBeCalledWith(process.env('GOPATH'), 'src')
-        expect(process.env).toBeCalledWith('GOPATH')
+        expect(path.join).toBeCalledWith(processMock.env('GOPATH'), 'src')
+        expect(processMock.env).toBeCalledWith('GOPATH')
     })
 
 })
@@ -160,12 +148,9 @@ describe('getSrcFromGoPathEnvVar()', () => {
 describe('getSrcFromStaticDefault()', () => {
 
     test('should return path+source when GOPATH is set', () => {
-        const path = {
-            join: jest.fn().mockReturnValue('/path/to/home/src')
-        }
-        const os = {
-            homedir: jest.fn().mockReturnValue('/path/to/home')
-        }
+        path.join = jest.fn().mockReturnValue('/path/to/home/src')
+        os.homedir = jest.fn().mockReturnValue('/path/to/home')
+
         const result = getSrcFromStaticDefault(path, os)
 
         expect(result).not.toBeNull()

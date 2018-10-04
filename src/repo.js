@@ -2,7 +2,11 @@ const path = require('path')
 const debug = require('debug')('git-organized:repo')
 const gitUrlParse = require('git-url-parse')
 
+// module.exports = (path,debug,gitUrlParse)=>{
+//     return {
 
+//     }
+// }
 // export function getSrcFromCliArg(process){
 //     return process.env('GIT_ORGANIZED_SRC_DIR')
 // }
