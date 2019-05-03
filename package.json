@@ -47,7 +47,7 @@
     "find-git-repos": "^0.0.0",
     "git-url-parse": "^10.0.1",
     "node-cmd": "^3.0.0",
-    "simple-git": "^1.96.0"
+    "simple-git": "^1.110.0"
   },
   "devDependencies": {
     "ajv": "^6.5.3",
