@@ -45,7 +45,7 @@
   "dependencies": {
     "commander": "^2.20.0",
     "find-git-repos": "^0.0.0",
-    "git-url-parse": "^10.0.1",
+    "git-url-parse": "^11.1.2",
     "node-cmd": "^3.0.0",
     "simple-git": "^1.110.0"
   },
