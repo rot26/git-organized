@@ -59,7 +59,7 @@
     "eslint": "^5.16.0",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-jest": "^22.5.1",
-    "jest": "^23.6.0",
+    "jest": "^24.7.1",
     "jsdoc": "^3.5.5",
     "nodemon": "^1.19.0",
     "npm-run-all": "^4.1.3",
