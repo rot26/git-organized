@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/rot26/find-git-directories#readme",
   "dependencies": {
-    "commander": "^4.0.1",
+    "commander": "^5.0.0",
     "find-git-repos": "^0.0.0",
     "git-url-parse": "^11.1.2",
     "node-cmd": "^3.0.0",
