@@ -50,7 +50,7 @@
     "simple-git": "^1.129.0"
   },
   "devDependencies": {
-    "ajv": "^6.10.2",
+    "ajv": "^6.12.4",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-jest": "^24.9.0",
