@@ -1,35 +1,86 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# git-go-organize.sh - Organize cloned Git repositories
+set -e # Exit on error
 
-# Function to organize repositories
-organize_repos() {
-    local target_dir="$1"
-    
-    if [[ ! -d "$target_dir" ]]; then
-        echo "Directory $target_dir does not exist."
-        exit 1
-    fi
+SCRIPT_PATH=$(realpath "$(dirname $0)")
 
-    # Create organized directories
-    mkdir -p "$target_dir/organized"
+source "$(realpath ${SCRIPT_PATH}/functions/remote_to_path.sh)"
 
-    # Move repositories into organized directory
-    for repo in "$target_dir"/*; do
-        if [[ -d "$repo/.git" ]]; then
-            repo_name=$(basename "$repo")
-            mv "$repo" "$target_dir/organized/$repo_name"
-            echo "Moved $repo_name to organized directory."
-        fi
-    done
-
-    echo "Organization complete."
+# Function to display usage information
+usage() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  -h, --help                   Display this help message"
+    echo "  -d, --dry-run                Print the repository URL without cloning"
+    echo "  -o <name>, --origin <name>   Use <name> instead of 'origin' to track the upstream repository"
+    exit 1
 }
 
-# Main script execution
-if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 <directory>"
+OPTIONS=""
+DRY_RUN=false
+ORIGIN_NAME="origin"
+
+# Parse command-line arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            usage
+            ;;
+        -d|--dry-run)
+            DRY_RUN=true
+            ;;
+        -o|--origin)
+            ORIGIN_NAME="$1"
+            ;;
+        *)
+            if [[ "$1" == -* ]]; then
+                OPTIONS="$OPTIONS $1"
+            elif [[ "$1" == --* ]]; then
+                OPTIONS="$OPTIONS $1"
+            else
+                echo "Unknown parameter passed: $1"
+                usage
+            fi
+            ;;
+    esac
+    shift
+done
+
+# Get the repository URL using the specified origin name
+REPO_URL=$(git config --get remote.${ORIGIN_NAME}.url)
+
+# Define a prefix of ${GOPATH}. If GOPATH is not set, set to ${HOME}.
+PREFIX="${GOPATH:-$HOME}/src"
+
+# Get the path to the repository
+REPO_PATH="${PREFIX}/$(remote_to_path ${REPO_URL})"
+
+# Get the root of the project we are in
+OLD_PATH_ROOT=$(git rev-parse --show-toplevel)
+
+# Handle dry-run option
+if [ "$DRY_RUN" = true ]; then
+    echo "Dry run: Repository URL for ${ORIGIN_NAME} is ${REPO_URL}, with path ${REPO_PATH}"
+    echo "mv -r ${OPTIONS} \\ "
+    echo "${OLD_PATH_ROOT} \\ "
+    echo "${REPO_PATH}"
+    exit 0
+fi
+
+# Check if the repository already exists
+if [ -d "${REPO_PATH}" ]; then
+    echo "Error: Repository already exists at ${REPO_PATH}"
+    echo "cd ${REPO_PATH}"
     exit 1
 fi
 
-organize_repos "$1"
+# Create the parent directory if it does not exist
+mkdir -p "$(dirname ${REPO_PATH})"
+
+# Move the current project to the new location
+mv -r ${OPTIONS} \
+    "${OLD_PATH_ROOT}" \
+    "${REPO_PATH}"
+
+echo "Successfully moved repository: $REPO_URL"
+echo "cd ${REPO_PATH}"
