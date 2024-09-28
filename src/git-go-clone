@@ -1,29 +1,45 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -e
+
+declare SCRIPT_PATH=$(realpath "$(dirname $0)")
+
+# Source the script to test
+source "$(realpath ${SCRIPT_PATH}/functions/remote_to_path.sh)"
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 -u <repository-url> [options]"
+    echo "Usage: $0 [options] <repository-url>"
     echo "Options:"
-    echo "  -u, --url <repository-url>   URL of the Git repository to clone"
     echo "  -h, --help                   Display this help message"
+    echo "  -d, --dry-run                Print the repository URL without cloning"
     exit 1
 }
+
+OPTIONS=""
+DRY_RUN=false
 
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -u|--url) 
-            REPO_URL="$2"
-            shift 2
-            ;;
-        -h|--help) 
+        -h|--help)
             usage
             ;;
-        *) 
-            echo "Unknown parameter passed: $1"
-            usage
+        -d|--dry-run)
+            DRY_RUN=true
+            ;;
+        *)
+            if [[ "$1" == -* ]]; then
+                OPTIONS="$OPTIONS $1"
+            elif [ -z "$REPO_URL" ]; then
+                REPO_URL="$1"
+            else
+                echo "Unknown parameter passed: $1"
+                usage
+            fi
             ;;
     esac
+    shift
 done
 
 # Check if repository URL is provided
@@ -32,8 +48,15 @@ if [ -z "$REPO_URL" ]; then
     usage
 fi
 
-# Clone the repository
-git clone "$REPO_URL" || {
+# Handle dry-run option
+if [ "$DRY_RUN" = true ]; then
+    echo "Dry run: Repository URL is $REPO_URL"
+    echo "git clone ${OPTIONS} ${REPO_URL}"
+    exit 0
+fi
+
+# Clone the repository with options
+git clone $OPTIONS "$REPO_URL" || {
     echo "Error: Failed to clone repository."
     exit 1
 }
