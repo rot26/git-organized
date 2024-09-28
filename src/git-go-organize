@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# git-go-organize.sh - Organize cloned Git repositories
+
+# Function to organize repositories
+organize_repos() {
+    local target_dir="$1"
+    
+    if [[ ! -d "$target_dir" ]]; then
+        echo "Directory $target_dir does not exist."
+        exit 1
+    fi
+
+    # Create organized directories
+    mkdir -p "$target_dir/organized"
+
+    # Move repositories into organized directory
+    for repo in "$target_dir"/*; do
+        if [[ -d "$repo/.git" ]]; then
+            repo_name=$(basename "$repo")
+            mv "$repo" "$target_dir/organized/$repo_name"
+            echo "Moved $repo_name to organized directory."
+        fi
+    done
+
+    echo "Organization complete."
+}
+
+# Main script execution
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+organize_repos "$1"
