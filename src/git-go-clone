@@ -2,9 +2,22 @@
 
 set -e # Exit on error
 
-SCRIPT_PATH=$(realpath "$(dirname $0)")
+SCRIPT_PATH=$(realpath "$(dirname "$0")")
 
-source "$(realpath ${SCRIPT_PATH}/functions/remote_to_path.sh)"
+function remote_to_path() {
+  local remote_url=$1
+  local path
+  path=$(echo $remote_url | sed \
+    -e 's/^ssh:\/\///' \
+    -e 's/^git@//' \
+    -e 's/^https\?:\/\///' \
+    -e 's/^git:\/\///' \
+    -e 's/\.git$//' \
+    -e 's/:[0-9]\+\/\|:[0-9]\+/\//' \
+    -e 's/:/\//' \
+    )
+  echo "$path"
+}
 
 # Function to display usage information
 usage() {
@@ -19,7 +32,7 @@ OPTIONS=""
 DRY_RUN=false
 
 # Parse command-line arguments
-while [[ "$#" -gt 0 ]]; do
+while [[ "$@" -gt 0 ]]; do
     case $1 in
         -h|--help)
             usage
@@ -29,8 +42,6 @@ while [[ "$#" -gt 0 ]]; do
             ;;
         *)
             if [[ "$1" == -* ]]; then
-                OPTIONS="$OPTIONS $1"
-            elif [[ "$1" == --* ]]; then
                 OPTIONS="$OPTIONS $1"
             elif [ -z "$REPO_URL" ]; then
                 REPO_URL="$1"
@@ -54,7 +65,7 @@ fi
 PREFIX=${GOPATH:-$HOME}/src
 
 # Get the path to the repository
-REPO_PATH="${PREFIX}/$(remote_to_path ${REPO_URL})"
+REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
 
 # Check if the repository already exists
 if [ -d "${REPO_PATH}" ]; then
