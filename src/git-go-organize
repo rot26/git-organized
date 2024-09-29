@@ -2,9 +2,10 @@
 
 set -e # Exit on error
 
-SCRIPT_PATH=$(realpath "$(dirname $0)")
+SCRIPT_PATH=$(realpath "$(dirname "$0")")
 
-source "$(realpath ${SCRIPT_PATH}/functions/remote_to_path.sh)"
+source "$(realpath "${SCRIPT_PATH}/functions/remote_to_path.sh")"
+
 
 OPTIONS=""
 DRY_RUN=false
@@ -44,8 +45,6 @@ while [[ "$#" -gt 0 ]]; do
         *)
             if [[ "$1" == -* ]]; then
                 OPTIONS="$OPTIONS $1"
-            elif [[ "$1" == --* ]]; then
-                OPTIONS="$OPTIONS $1"
             else
                 echo "Unknown parameter passed: $1"
                 usage
@@ -62,19 +61,18 @@ REPO_URL=$(git config --get remote.${ORIGIN_NAME}.url)
 PREFIX="${GOPATH:-$HOME}/src"
 
 # Get the path to the repository
-REPO_PATH="${PREFIX}/$(remote_to_path ${REPO_URL})"
+REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")")"
 
 # Create a list to store tuples of remote name, remote URL, and remote path
 declare -a REMOTE_TUPLES
 
 # Add the remote name, URL, and path to the list if the symlink option is enabled
 if [ "$SYMLINK" = true ]; then
-    for remote in $(git remote); do
+    for remote in "$(git remote)"; do
         if [ "$remote" != "$ORIGIN_NAME" ]; then
             REMOTE_URL=$(git config --get remote.${remote}.url)
-            REMOTE_PATH="${REPO_PATH}/$(basename ${REMOTE_URL} .git)"
+            REMOTE_PATH="${REPO_PATH}/$(basename "${REMOTE_URL}" .git)")"
             REMOTE_TUPLES+=("$remote $REMOTE_URL $REMOTE_PATH")
-        fi
     done
 fi
 
@@ -105,9 +103,10 @@ mv -r ${OPTIONS} \
     "${OLD_PATH_ROOT}" \
     "${REPO_PATH}"
 
-# Print the list of remote tuples
+# Create symlinks for remote tuples
 for remote in "${REMOTE_TUPLES[@]}"; do
-    ln -s "${REPO_PATH}" "${remote[2]}"
+    IFS=' ' read -r -a remote_array <<< "$remote"
+    ln -s "${REPO_PATH}" "${remote_array[2]}"
 done
 
 echo "Successfully moved repository: $REPO_URL"
