@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-declare SCRIPT_PATH=$(realpath "$(dirname $0)")
+set -e # Exit on error
+
+SCRIPT_PATH=$(realpath "$(dirname "$0")")
 
 # Source the script to test
-source "$(realpath ${SCRIPT_PATH}/../src/functions/remote_to_path.sh)"
+source "$(realpath ${SCRIPT_PATH}/../src/git-go-clone)"
 
-# Define the list of tuples for testing
+# Define the list of tuples for testing remote_to_path function
 repos=(
     "https://github.com/user/repo.git github.com/user/repo"
     "ssh://git@github.com:user/repo.git github.com/user/repo"
@@ -46,18 +48,44 @@ repos=(
     "git@git.example.com:8443/org/repo.git git.example.com/org/repo"
 )
 
-# Loop over each tuple and call remote_to_path
-for repo in "${repos[@]}"; do
-    set +x
-    remote_url=$(echo "$repo" | awk '{print $1}')
-    expected_path=$(echo "$repo" | awk '{print $2}')
-    actual_path=$(remote_to_path "$remote_url")
-    set +x
-    if [ "$actual_path" == "$expected_path" ]; then
-        echo "Test passed for $remote_url"
+# Test the remote_to_path function
+test_remote_to_path() {
+    for repo in "${repos[@]}"; do
+        remote_url=$(echo "$repo" | awk '{print $1}')
+        expected_path=$(echo "$repo" | awk '{print $2}')
+        actual_path=$(remote_to_path "$remote_url")
+        if [ "$actual_path" == "$expected_path" ]; then
+            echo "Test passed for $remote_url"
+        else
+            echo "Test failed for $remote_url"
+            echo "Expected: $expected_path"
+            echo "Got: $actual_path"
+        fi
+    done
+}
+
+# Test the main script logic
+test_git_go_clone() {
+    # Test dry-run option
+    ./git-go-clone -d https://github.com/user/repo.git | grep -q "Dry run: Repository URL is https://github.com/user/repo.git"
+    if [ $? -eq 0 ]; then
+        echo "Dry run test passed"
     else
-        echo "Test failed for $remote_url"
-        echo "Expected: $expected_path"
-        echo "Got: $actual_path"
+        echo "Dry run test failed"
     fi
-done
+
+    # Test cloning (this will actually clone the repository, so use a temporary directory)
+    TEMP_DIR=$(mktemp -d)
+    export GOPATH=$TEMP_DIR
+    ./git-go-clone https://github.com/user/repo.git
+    if [ -d "$TEMP_DIR/src/github.com/user/repo" ]; then
+        echo "Clone test passed"
+    else
+        echo "Clone test failed"
+    fi
+    rm -rf "$TEMP_DIR"
+}
+
+# Run the tests
+test_remote_to_path
+test_git_go_clone
