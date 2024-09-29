@@ -6,16 +6,6 @@ SCRIPT_PATH=$(realpath "$(dirname $0)")
 
 source "$(realpath ${SCRIPT_PATH}/functions/remote_to_path.sh)"
 
-# Function to display usage information
-usage() {
-    echo "Usage: $0 [options]"
-    echo "Options:"
-    echo "  -h, --help                   Display this help message"
-    echo "  -d, --dry-run                Print the repository URL without cloning"
-    echo "  -o <name>, --origin <name>   Use <name> instead of 'origin' to track the upstream repository"
-    exit 1
-}
-
 OPTIONS=""
 DRY_RUN=false
 ORIGIN_NAME="origin"
@@ -88,11 +78,6 @@ if [ "$SYMLINK" = true ]; then
     done
 fi
 
-# Print the list of remote tuples
-for tuple in "${REMOTE_TUPLES[@]}"; do
-    echo "Remote tuple: $tuple"
-done
-
 # Get the root of the project we are in
 OLD_PATH_ROOT=$(git rev-parse --show-toplevel)
 
@@ -119,6 +104,11 @@ mkdir -p "$(dirname ${REPO_PATH})"
 mv -r ${OPTIONS} \
     "${OLD_PATH_ROOT}" \
     "${REPO_PATH}"
+
+# Print the list of remote tuples
+for remote in "${REMOTE_TUPLES[@]}"; do
+    ln -s "${REPO_PATH}" "${remote[2]}"
+done
 
 echo "Successfully moved repository: $REPO_URL"
 echo "cd ${REPO_PATH}"
