@@ -2,6 +2,16 @@
 
 Get organized by moving and managing your repos in the go-lang fashion
 
+## Installation
+
+Curl the script into your path
+
+```bash
+curl -s https://raw.githubusercontent.com/rot26/git-organized/main/git-go-clone.sh -o /usr/local/bin/git-go-clone && chmod u+x /usr/local/bin/git-go-clone
+curl -s https://raw.githubusercontent.com/rot26/git-organized/main/git-go-organize.sh -o /usr/local/bin/git-go-organize && chmod u+x /usr/local/bin/git-go-organize
+```
+
+
 ## Usage
 
 Clone the repo into a git-organized directory
