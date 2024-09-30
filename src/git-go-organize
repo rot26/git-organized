@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+set -e # Exit on error
+
+SCRIPT_PATH=$(realpath "$(dirname "$0")")
+
+function remote_to_path() {
+  local remote_url=$1
+  local path
+  path=$(echo $remote_url | sed \
+    -e 's/^ssh:\/\///' \
+    -e 's/^git@//' \
+    -e 's/^https\?:\/\///' \
+    -e 's/^git:\/\///' \
+    -e 's/\.git$//' \
+    -e 's/:[0-9]\+\/\|:[0-9]\+/\//' \
+    -e 's/:/\//' \
+    )
+  echo "$path"
+}
+
+OPTIONS=""
+DRY_RUN=false
+ORIGIN_NAME="origin"
+# Function to display usage information
+usage() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  -h, --help                   Display this help message"
+    echo "  -d, --dry-run                Print the repository URL without cloning"
+    echo "  -o <name>, --origin <name>   Use <name> instead of 'origin' to track the upstream repository"
+    echo "  -s, --symlink                Create symlinks for other remotes"
+    exit 1
+}
+
+OPTIONS=""
+DRY_RUN=false
+ORIGIN_NAME="origin"
+SYMLINK=false
+
+# Parse command-line arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            usage
+            ;;
+        -d|--dry-run)
+            DRY_RUN=true
+            ;;
+        -o|--origin)
+            ORIGIN_NAME="$2"
+            shift
+            ;;
+        -s|--symlink)
+            SYMLINK=true
+            ;;
+        *)
+            if [[ "$1" == -* ]]; then
+                OPTIONS="$OPTIONS $1"
+            else
+                echo "Unknown parameter passed: $1"
+                usage
+            fi
+            ;;
+    esac
+    shift
+done
+
+# Get the repository URL using the specified origin name
+REPO_URL=$(git config --get remote.${ORIGIN_NAME}.url)
+
+# Define a prefix of ${GOPATH}. If GOPATH is not set, set to ${HOME}.
+PREFIX="${GOPATH:-$HOME}/src"
+
+# Get the path to the repository
+REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
+
+# Create a list to store tuples of remote name, remote URL, and remote path
+declare -a REMOTE_TUPLES
+
+# Add the remote name, URL, and path to the list if the symlink option is enabled
+if [ "$SYMLINK" = true ]; then
+    for remote in "$(git remote)"; do
+        if [ "$remote" != "$ORIGIN_NAME" ]; then
+            REMOTE_URL="$(git config --get remote.${remote}.url)"
+            REMOTE_PATH="${REPO_PATH}/$(basename "${REMOTE_URL}" .git)"
+            REMOTE_TUPLES+=("$remote" "$REMOTE_URL" "$REMOTE_PATH")
+        fi
+    done
+fi
+
+# Get the root of the project we are in
+OLD_PATH_ROOT=$(git rev-parse --show-toplevel)
+
+# Handle dry-run option
+if [ "$DRY_RUN" = true ]; then
+    echo "Dry run: Repository URL for ${ORIGIN_NAME} is ${REPO_URL}, with path ${REPO_PATH}"
+    echo "mv -r ${OPTIONS} \\ "
+    echo "${OLD_PATH_ROOT} \\ "
+    echo "${REPO_PATH}"
+    exit 0
+fi
+
+# Check if the repository already exists
+if [ -d "${REPO_PATH}" ]; then
+    echo "Error: Repository already exists at ${REPO_PATH}"
+    echo "cd ${REPO_PATH}"
+    exit 1
+fi
+
+# Create the parent directory if it does not exist
+mkdir -p "$(dirname ${REPO_PATH})"
+
+# Move the current project to the new location
+mv -r ${OPTIONS} \
+    "${OLD_PATH_ROOT}" \
+    "${REPO_PATH}"
+
+# Create symlinks for remote tuples
+for remote in "${REMOTE_TUPLES[@]}"; do
+    IFS=' ' read -r -a remote_array <<< "$remote"
+    ln -s "${REPO_PATH}" "${remote_array[2]}"
+done
+
+echo "Successfully moved repository: $REPO_URL"
+echo "cd ${REPO_PATH}"

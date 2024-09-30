@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+set -e # Exit on error
+
+SCRIPT_PATH=$(realpath "$(dirname "$0")")
+
+function remote_to_path() {
+  local remote_url=$1
+  local path
+  path=$(echo $remote_url | sed \
+    -e 's/^ssh:\/\///' \
+    -e 's/^git@//' \
+    -e 's/^https\?:\/\///' \
+    -e 's/^git:\/\///' \
+    -e 's/\.git$//' \
+    -e 's/:[0-9]\+\/\|:[0-9]\+/\//' \
+    -e 's/:/\//' \
+    )
+  echo "$path"
+}
+
+# Function to display usage information
+usage() {
+    echo "Usage: $0 [options] <repository-url>"
+    echo "Options:"
+    echo "  -h, --help                   Display this help message"
+    echo "  -d, --dry-run                Print the repository URL without cloning"
+    exit 1
+}
+
+OPTIONS=""
+DRY_RUN=false
+
+# Parse command-line arguments
+while [[ "$@" -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            usage
+            ;;
+        -d|--dry-run)
+            DRY_RUN=true
+            ;;
+        *)
+            if [[ "$1" == -* ]]; then
+                OPTIONS="$OPTIONS $1"
+            elif [ -z "$REPO_URL" ]; then
+                REPO_URL="$1"
+            else
+                echo "Unknown parameter passed: $1"
+                usage
+            fi
+            ;;
+    esac
+    shift
+done
+
+# Check if repository URL is provided
+if [ -z "$REPO_URL" ]; then
+    echo "Error: Repository URL is required."
+    usage
+fi
+
+
+# Define a prefix of ${GOPATH}. If GOPATH is not set, set to ${HOME}.
+PREFIX=${GOPATH:-$HOME}/src
+
+# Get the path to the repository
+REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
+
+# Check if the repository already exists
+if [ -d "${REPO_PATH}" ]; then
+    echo "Error: Repository already exists at ${REPO_PATH}"
+    echo "cd ${REPO_PATH}"
+    exit 1
+fi
+
+# Handle dry-run option
+if [ "$DRY_RUN" = true ]; then
+    echo "Dry run: Repository URL is $REPO_URL"
+    echo "git clone ${OPTIONS} ${REPO_URL} ${REPO_PATH}"
+    exit 0
+fi
+
+# Clone the repository with options
+git clone $OPTIONS "$REPO_URL" "${REPO_PATH}" || {
+    echo "Error: Failed to clone repository."
+    exit 1
+}
+
+echo "Successfully cloned repository: $REPO_URL"
