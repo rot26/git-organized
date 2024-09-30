@@ -73,7 +73,7 @@ REPO_URL=$(git config --get remote.${ORIGIN_NAME}.url)
 PREFIX="${GOPATH:-$HOME}/src"
 
 # Get the path to the repository
-REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")")"
+REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
 
 # Create a list to store tuples of remote name, remote URL, and remote path
 declare -a REMOTE_TUPLES
@@ -82,9 +82,10 @@ declare -a REMOTE_TUPLES
 if [ "$SYMLINK" = true ]; then
     for remote in "$(git remote)"; do
         if [ "$remote" != "$ORIGIN_NAME" ]; then
-            REMOTE_URL=$(git config --get remote.${remote}.url)
-            REMOTE_PATH="${REPO_PATH}/$(basename "${REMOTE_URL}" .git)")"
-            REMOTE_TUPLES+=("$remote $REMOTE_URL $REMOTE_PATH")
+            REMOTE_URL="$(git config --get remote.${remote}.url)"
+            REMOTE_PATH="${REPO_PATH}/$(basename "${REMOTE_URL}" .git)"
+            REMOTE_TUPLES+=("$remote" "$REMOTE_URL" "$REMOTE_PATH")
+        fi
     done
 fi
 

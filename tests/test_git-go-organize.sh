@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e # Exit on error
+set -ex # Exit on error
 
 SCRIPT_PATH=$(realpath "$(dirname "$0")")
 
