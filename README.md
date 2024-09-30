@@ -7,8 +7,8 @@ Get organized by moving and managing your repos in the go-lang fashion
 Curl the script into your path
 
 ```bash
-curl -s https://raw.githubusercontent.com/rot26/git-organized/main/git-go-clone.sh -o /usr/local/bin/git-go-clone && chmod u+x /usr/local/bin/git-go-clone
-curl -s https://raw.githubusercontent.com/rot26/git-organized/main/git-go-organize.sh -o /usr/local/bin/git-go-organize && chmod u+x /usr/local/bin/git-go-organize
+curl -s https://raw.githubusercontent.com/rot26/git-organized/refs/heads/master/src/git-go-clone -o /usr/local/bin/git-go-clone && chmod u+x /usr/local/bin/git-go-clone
+curl -s https://raw.githubusercontent.com/rot26/git-organized/refs/heads/master/src/git-go-organize.sh -o /usr/local/bin/git-go-organize && chmod u+x /usr/local/bin/git-go-organize
 ```
 
 
