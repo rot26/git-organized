@@ -3,6 +3,7 @@
 set -e # Exit on error
 
 SCRIPT_PATH=$(realpath "$(dirname "$0")")
+declare VERSION="1.0.0"
 
 function remote_to_path() {
   local remote_url=$1
@@ -30,6 +31,7 @@ usage() {
     echo "  -d, --dry-run                Print the repository URL without cloning"
     echo "  -o <name>, --origin <name>   Use <name> instead of 'origin' to track the upstream repository"
     echo "  -s, --symlink                Create symlinks for other remotes"
+    echo "  -v, --version                Display the version of the script"
     exit 1
 }
 
@@ -43,6 +45,9 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         -h|--help)
             usage
+            ;;
+        -v|--version)
+            echo "Version: $VERSION"
             ;;
         -d|--dry-run)
             DRY_RUN=true

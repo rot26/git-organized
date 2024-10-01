@@ -23,7 +23,7 @@ $ git go-clone <repo>
 Move the current repo to a git-organized directory
 
 ```bash
-$ git go-organize <repo>
+$ git go-organize
 ```
 
 ## Examples
@@ -33,7 +33,7 @@ $ git go-organize <repo>
 ```bash
 $ git go-clone https://github.com/rot26/git-organized.git
 # Is the same as
-$ git clone https://github.com/rot26/git-organized.git ${GOPATH}/src/github.com/rot26/git-organized
+$ git clone https://github.com/rot26/git-organized.git ${GOPATH:-HOME}/src/github.com/rot26/git-organized
 ```
 
 ### Organize a repo
@@ -42,7 +42,7 @@ $ git clone https://github.com/rot26/git-organized.git ${GOPATH}/src/github.com/
 # At old path
 $ git go-organize /random/path/to/repo
 # Is the same as
-$ mv /random/path/to/repo ${GOPATH}/src/github.com/rot26/git-organized && cd $_
+$ mv /random/path/to/repo ${GOPATH:-HOME}/src/github.com/rot26/git-organized && cd $_
 ```
 
 ## Valid Characters
