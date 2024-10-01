@@ -29,6 +29,8 @@ usage() {
     echo "Options:"
     echo "  -h, --help                   Display this help message"
     echo "  -d, --dry-run                Print the repository URL without cloning"
+    echo "  -p, --path-override <path>   Override the path with the specified value."
+    echo "                               Alternatively use GIT_ORGANIZED_PATH environment variable"
     echo "  -o <name>, --origin <name>   Use <name> instead of 'origin' to track the upstream repository"
     echo "  -s, --symlink                Create symlinks for other remotes"
     echo "  -v, --version                Display the version of the script"
@@ -52,9 +54,13 @@ while [[ "$#" -gt 0 ]]; do
         -d|--dry-run)
             DRY_RUN=true
             ;;
+        -p|--path-override)
+            GIT_ORGANIZED_PATH="$2"
+            shift 2
+            ;;
         -o|--origin)
             ORIGIN_NAME="$2"
-            shift
+            shift 2
             ;;
         -s|--symlink)
             SYMLINK=true
@@ -71,14 +77,22 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+
 # Get the repository URL using the specified origin name
-REPO_URL=$(git config --get remote.${ORIGIN_NAME}.url)
+REPO_URL=$(git config --get remote.${ORIGIN_NAME:-"origin"}.url)
 
 # Define a prefix of ${GOPATH}. If GOPATH is not set, set to ${HOME}.
 PREFIX="${GOPATH:-$HOME}/src"
 
-# Get the path to the repository
-REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
+# If GIT_ORGANIZED_PATH is set via -p, --path-override, or environment variable, use it.
+if [[ -n "$GIT_ORGANIZED_PATH" ]]; then
+    REPO_PATH="${PREFIX}/${GIT_ORGANIZED_PATH}"
+elif PATH_OVERRIDE=$(git config --get git-organized.${ORIGIN_NAME:-"origin"}.path); then
+    REPO_PATH="${PREFIX}/${PATH_OVERRIDE}"
+else
+    # Get the path to the repository
+    REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
+fi
 
 # Create a list to store tuples of remote name, remote URL, and remote path
 declare -a REMOTE_TUPLES
@@ -88,7 +102,12 @@ if [ "$SYMLINK" = true ]; then
     for remote in "$(git remote)"; do
         if [ "$remote" != "$ORIGIN_NAME" ]; then
             REMOTE_URL="$(git config --get remote.${remote}.url)"
-            REMOTE_PATH="${REPO_PATH}/$(basename "${REMOTE_URL}" .git)"
+            if REMOTE_PATH_OVERRIDE=$(git config --get git-organized.${remote}.path); then
+                REMOTE_PATH="${PREFIX}/${REMOTE_PATH_OVERRIDE}"
+            else
+                # Get the path to the repository
+                REMOTE_PATH="${PREFIX}/$(remote_to_path "${REMOTE_URL}")"
+            fi
             REMOTE_TUPLES+=("$remote" "$REMOTE_URL" "$REMOTE_PATH")
         fi
     done
