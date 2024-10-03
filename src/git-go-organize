@@ -135,6 +135,11 @@ fi
 # Create the parent directory if it does not exist
 mkdir -p "$(dirname ${REPO_PATH})"
 
+# If the path override is set, update the git config
+if [[ -n "$GIT_ORGANIZED_PATH" ]]; then
+    git config --set git-organized.${ORIGIN_NAME:-"origin"}.path) "${GIT_ORGANIZED_PATH}"
+fi
+
 # Move the current project to the new location
 mv -r ${OPTIONS} \
     "${OLD_PATH_ROOT}" \
