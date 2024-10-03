@@ -3,6 +3,7 @@
 set -e # Exit on error
 
 SCRIPT_PATH=$(realpath "$(dirname "$0")")
+declare VERSION="1.0.0"
 
 function remote_to_path() {
   local remote_url=$1
@@ -24,7 +25,12 @@ usage() {
     echo "Usage: $0 [options] <repository-url>"
     echo "Options:"
     echo "  -h, --help                   Display this help message"
+    echo "  -p, --path-override <path>   Override the path with the specified value."
+    echo "                               Alternatively use GIT_ORGANIZED_PATH environment variable"
+    echo "  -o <name>, --origin <name>   Use <name> instead of 'origin' to track the upstream repository"
+    echo "                               Only used with path-override"
     echo "  -d, --dry-run                Print the repository URL without cloning"
+    echo "  -v, --version                Display the version of the script"
     exit 1
 }
 
@@ -37,9 +43,23 @@ while [[ "$@" -gt 0 ]]; do
         -h|--help)
             usage
             ;;
+        -v|--version)
+            echo "Version: $VERSION"
+            exit 0
+            ;;
         -d|--dry-run)
             DRY_RUN=true
+            shift
             ;;
+        -p|--path-override)
+            GIT_ORGANIZED_PATH="$2"
+            shift 2
+            ;;
+        -o|--origin)
+            ORIGIN_NAME="$2"
+            shift 2
+            ;;
+
         *)
             if [[ "$1" == -* ]]; then
                 OPTIONS="$OPTIONS $1"
@@ -60,12 +80,17 @@ if [ -z "$REPO_URL" ]; then
     usage
 fi
 
-
 # Define a prefix of ${GOPATH}. If GOPATH is not set, set to ${HOME}.
 PREFIX=${GOPATH:-$HOME}/src
 
-# Get the path to the repository
-REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
+# If GIT_ORGANIZED_PATH is set via -p, --path-override, or environment variable, use it.
+if [[ -n "$GIT_ORGANIZED_PATH" ]]; then
+    REPO_PATH="${PREFIX}/${GIT_ORGANIZED_PATH}"
+# Else leverage the repo url to determine the path
+else
+    # Get the path to the repository
+    REPO_PATH="${PREFIX}/$(remote_to_path "${REPO_URL}")"
+fi
 
 # Check if the repository already exists
 if [ -d "${REPO_PATH}" ]; then
@@ -74,6 +99,7 @@ if [ -d "${REPO_PATH}" ]; then
     exit 1
 fi
 
+# Clone the repository with options
 # Handle dry-run option
 if [ "$DRY_RUN" = true ]; then
     echo "Dry run: Repository URL is $REPO_URL"
@@ -82,9 +108,15 @@ if [ "$DRY_RUN" = true ]; then
 fi
 
 # Clone the repository with options
-git clone $OPTIONS "$REPO_URL" "${REPO_PATH}" || {
+git clone $OPTIONS "${REPO_URL}" "${REPO_PATH}" || {
     echo "Error: Failed to clone repository."
     exit 1
 }
+
+# Set git config if GIT_ORGANIZED_PATH is set
+if [[ -n "$GIT_ORGANIZED_PATH" ]]; then
+    cd "${REPO_PATH}"
+    git config --local git-organized.${ORIGIN_NAME:-"origin"}.path "$GIT_ORGANIZED_PATH"
+fi
 
 echo "Successfully cloned repository: $REPO_URL"
